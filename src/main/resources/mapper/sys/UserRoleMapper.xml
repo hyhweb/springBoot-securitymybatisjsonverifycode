@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.securitymybatisjsonverifycode.sys.dao.UserRoleDao">
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.entity.UserRole" id="UserRole">
+        <id column="user_role_id" property="userRoleId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.res.UserRoleRes" extends="UserRole" id="UserRoleRes">
+        </resultMap>
+
+    <!-- 全部字段，一般用于明细查询 -->
+    <sql id="AllColumnlist">
+            a.user_role_id, 
+            a.user_id, 
+            a.role_id
+    </sql>
+
+
+    <insert id="add" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.UserRole" useGeneratedKeys="true" keyProperty="userRoleId">
+        insert into t_sys_user_role(
+            <if test="userRoleId!=null">
+                user_role_id,
+            </if>
+            user_id,
+            role_id
+        ) values (
+            <if test="userRoleId!=null">
+                #{userRoleId,jdbcType = BIGINT},
+            </if>
+            #{userId,jdbcType = BIGINT},
+            #{roleId,jdbcType = BIGINT}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.UserRole">
+        update t_sys_user_role
+        <set>
+            <if test="userId!=null ">
+                user_id=#{userId,jdbcType = BIGINT},
+            </if>
+            <if test="roleId!=null ">
+                role_id=#{roleId,jdbcType = BIGINT},
+            </if>
+        </set>
+        where
+         user_role_id=#{userRoleId}
+    </update>
+
+        <update id="updateAll" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.UserRole">
+                update t_sys_user_role
+                        <set>
+                            user_id=#{userId,jdbcType = BIGINT},
+                            role_id=#{roleId,jdbcType = BIGINT},
+                        </set>
+                        where  user_role_id=#{userRoleId}
+        </update>
+
+    <delete id="delete">
+        delete from t_sys_user_role
+            where  user_role_id=#{0}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_sys_user_role
+        where user_role_id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator=" , " close=")"> #{item}</foreach>
+    </delete>
+
+    <select id="get" resultMap="UserRoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_user_role as a
+        where
+        user_role_id=#{0}
+    </select>
+
+    <select id="getByIds" resultMap="UserRoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_user_role as a
+        where user_role_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator=" , " close=")"> #{item}</foreach>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="Long">
+        select count(1) from t_sys_user_role as a
+        <where>
+            <include refid="listWhere"/>
+        </where>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="UserRoleRes">
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageList" parameterType="map" resultMap="UserRoleRes">
+        <include refid="listSql"/>
+         <if test="startRow!=null and pageSize!=null">
+             <![CDATA[LIMIT #{startRow},#{pageSize} ]]>
+         </if>
+    </select>
+
+    <sql id="listSql">
+        select
+            <include refid="AllColumnlist"/>
+            from t_sys_user_role as a
+            <where>
+                <include refid="listWhere"/>
+            </where>
+    </sql>
+
+    <sql id="listWhere">
+        <if test="parameter !=null">
+            <if test="parameter.userRoleId!=null ">
+                AND a.user_role_id=#{parameter.userRoleId}
+            </if>
+            <if test="parameter.userId!=null ">
+                AND a.user_id=#{parameter.userId}
+            </if>
+            <if test="parameter.roleId!=null ">
+                AND a.role_id=#{parameter.roleId}
+            </if>
+       </if>
+    </sql>
+
+
+
+</mapper>

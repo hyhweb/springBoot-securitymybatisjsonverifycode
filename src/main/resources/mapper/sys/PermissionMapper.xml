@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.securitymybatisjsonverifycode.sys.dao.PermissionDao">
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.entity.Permission" id="Permission">
+        <id column="permission_id" property="permissionId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="permission_name" property="permissionName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="permission_code" property="permissionCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.res.PermissionRes" extends="Permission" id="PermissionRes">
+        </resultMap>
+
+    <!-- 全部字段，一般用于明细查询 -->
+    <sql id="AllColumnlist">
+            a.permission_id, 
+            a.permission_name, 
+            a.permission_code
+    </sql>
+
+
+    <insert id="add" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Permission" useGeneratedKeys="true" keyProperty="permissionId">
+        insert into t_sys_permission(
+            <if test="permissionId!=null">
+                permission_id,
+            </if>
+            permission_name,
+            permission_code
+        ) values (
+            <if test="permissionId!=null">
+                #{permissionId,jdbcType = BIGINT},
+            </if>
+            #{permissionName,jdbcType = VARCHAR},
+            #{permissionCode,jdbcType = VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Permission">
+        update t_sys_permission
+        <set>
+            <if test="permissionName!=null and permissionName!=''">
+                permission_name=#{permissionName,jdbcType = VARCHAR},
+            </if>
+            <if test="permissionCode!=null and permissionCode!=''">
+                permission_code=#{permissionCode,jdbcType = VARCHAR},
+            </if>
+        </set>
+        where
+         permission_id=#{permissionId}
+    </update>
+
+        <update id="updateAll" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Permission">
+                update t_sys_permission
+                        <set>
+                            permission_name=#{permissionName,jdbcType = VARCHAR},
+                            permission_code=#{permissionCode,jdbcType = VARCHAR},
+                        </set>
+                        where  permission_id=#{permissionId}
+        </update>
+
+    <delete id="delete">
+        delete from t_sys_permission
+            where  permission_id=#{0}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_sys_permission
+        where permission_id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator=" , " close=")"> #{item}</foreach>
+    </delete>
+
+    <select id="get" resultMap="PermissionRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_permission as a
+        where
+        permission_id=#{0}
+    </select>
+
+    <select id="getByIds" resultMap="PermissionRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_permission as a
+        where permission_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator=" , " close=")"> #{item}</foreach>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="Long">
+        select count(1) from t_sys_permission as a
+        <where>
+            <include refid="listWhere"/>
+        </where>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="PermissionRes">
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageList" parameterType="map" resultMap="PermissionRes">
+        <include refid="listSql"/>
+         <if test="startRow!=null and pageSize!=null">
+             <![CDATA[LIMIT #{startRow},#{pageSize} ]]>
+         </if>
+    </select>
+
+    <sql id="listSql">
+        select
+            <include refid="AllColumnlist"/>
+            from t_sys_permission as a
+            <where>
+                <include refid="listWhere"/>
+            </where>
+    </sql>
+
+    <sql id="listWhere">
+        <if test="parameter !=null">
+            <if test="parameter.permissionId!=null ">
+                AND a.permission_id=#{parameter.permissionId}
+            </if>
+            <if test="parameter.permissionName!=null and parameter.permissionName!=''">
+                AND a.permission_name=#{parameter.permissionName}
+            </if>
+            <if test="parameter.permissionCode!=null and parameter.permissionCode!=''">
+                AND a.permission_code=#{parameter.permissionCode}
+            </if>
+       </if>
+    </sql>
+
+
+
+</mapper>

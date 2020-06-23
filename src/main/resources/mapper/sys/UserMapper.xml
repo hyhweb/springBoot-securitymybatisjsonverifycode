@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.securitymybatisjsonverifycode.sys.dao.UserDao">
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.entity.User" id="User">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="username" property="username" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="password" property="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="enabled" property="enabled" javaType="java.lang.Boolean" jdbcType="BIT"/>
+        <result column="locked" property="locked" javaType="java.lang.Boolean" jdbcType="BIT"/>
+    </resultMap>
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.res.UserRes" extends="User" id="UserRes">
+        </resultMap>
+
+    <!-- 全部字段，一般用于明细查询 -->
+    <sql id="AllColumnlist">
+            a.id,
+            a.username,
+            a.password,
+            a.enabled,
+            a.locked
+    </sql>
+    <select id="getUserByName" resultMap="UserRes">
+        select  id,username, password from t_sys_user where username=#{userName,jdbcType = VARCHAR}
+    </select>
+    <select id="getRolesByUserId" resultMap="com.springboot.securitymybatisjsonverifycode.sys.dao.RoleDao.Role">
+        SELECT r.role_id,r.name,r.name_text from t_sys_role r,t_sys_user_role ur WHERE r.role_id = ur.role_id and ur.user_id = #{id}
+    </select>
+    <select id="getPermissionByUserId" resultType="java.lang.String">
+        SELECT p.permission_code
+        FROM t_sys_user_role ur,t_sys_permission_role rp,t_sys_permission p
+        WHERE p.permission_id=rp.permission_id AND rp.role_id = ur.role_id AND ur.user_id =#{id}
+    </select>
+    <insert id="add" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into t_sys_user(
+            <if test="id!=null">
+                id,
+            </if>
+            username,
+            password,
+            enabled,
+            locked
+        ) values (
+            <if test="id!=null">
+                #{id,jdbcType = BIGINT},
+            </if>
+            #{username,jdbcType = VARCHAR},
+            #{password,jdbcType = VARCHAR},
+            #{enabled,jdbcType = BIT},
+            #{locked,jdbcType = BIT}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.User">
+        update t_sys_user
+        <set>
+            <if test="username!=null and username!=''">
+                username=#{username,jdbcType = VARCHAR},
+            </if>
+            <if test="password!=null and password!=''">
+                password=#{password,jdbcType = VARCHAR},
+            </if>
+            <if test="enabled!=null ">
+                enabled=#{enabled,jdbcType = BIT},
+            </if>
+            <if test="locked!=null ">
+                locked=#{locked,jdbcType = BIT},
+            </if>
+        </set>
+        where
+         id=#{id}
+    </update>
+
+        <update id="updateAll" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.User">
+                update t_sys_user
+                        <set>
+                            username=#{username,jdbcType = VARCHAR},
+                            password=#{password,jdbcType = VARCHAR},
+                            enabled=#{enabled,jdbcType = BIT},
+                            locked=#{locked,jdbcType = BIT},
+                        </set>
+                        where  id=#{id}
+        </update>
+
+    <delete id="delete">
+        delete from t_sys_user
+            where  id=#{0}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_sys_user
+        where id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator=" , " close=")"> #{item}</foreach>
+    </delete>
+
+    <select id="get" resultMap="UserRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_user as a
+        where
+        id=#{0}
+    </select>
+
+    <select id="getByIds" resultMap="UserRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_user as a
+        where id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator=" , " close=")"> #{item}</foreach>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="Long">
+        select count(1) from t_sys_user as a
+        <where>
+            <include refid="listWhere"/>
+        </where>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="UserRes">
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageList" parameterType="map" resultMap="UserRes">
+        <include refid="listSql"/>
+         <if test="startRow!=null and pageSize!=null">
+             <![CDATA[LIMIT #{startRow},#{pageSize} ]]>
+         </if>
+    </select>
+
+    <sql id="listSql">
+        select
+            <include refid="AllColumnlist"/>
+            from t_sys_user as a
+            <where>
+                <include refid="listWhere"/>
+            </where>
+    </sql>
+
+    <sql id="listWhere">
+        <if test="parameter !=null">
+            <if test="parameter.id!=null ">
+                AND a.id=#{parameter.id}
+            </if>
+            <if test="parameter.username!=null and parameter.username!=''">
+                AND a.username=#{parameter.username}
+            </if>
+            <if test="parameter.password!=null and parameter.password!=''">
+                AND a.password=#{parameter.password}
+            </if>
+            <if test="parameter.enabled!=null ">
+                AND a.enabled=#{parameter.enabled}
+            </if>
+            <if test="parameter.locked!=null ">
+                AND a.locked=#{parameter.locked}
+            </if>
+       </if>
+    </sql>
+
+
+
+</mapper>

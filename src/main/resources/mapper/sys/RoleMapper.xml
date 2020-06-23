@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.securitymybatisjsonverifycode.sys.dao.RoleDao">
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.entity.Role" id="Role">
+        <id column="role_id" property="roleId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="name_text" property="nameText" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.res.RoleRes" extends="Role" id="RoleRes">
+        </resultMap>
+
+    <!-- 全部字段，一般用于明细查询 -->
+    <sql id="AllColumnlist">
+            a.role_id, 
+            a.name, 
+            a.name_text
+    </sql>
+
+
+    <insert id="add" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Role" useGeneratedKeys="true" keyProperty="roleId">
+        insert into t_sys_role(
+            <if test="roleId!=null">
+                role_id,
+            </if>
+            name,
+            name_text
+        ) values (
+            <if test="roleId!=null">
+                #{roleId,jdbcType = BIGINT},
+            </if>
+            #{name,jdbcType = VARCHAR},
+            #{nameText,jdbcType = VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Role">
+        update t_sys_role
+        <set>
+            <if test="name!=null and name!=''">
+                name=#{name,jdbcType = VARCHAR},
+            </if>
+            <if test="nameText!=null and nameText!=''">
+                name_text=#{nameText,jdbcType = VARCHAR},
+            </if>
+        </set>
+        where
+         role_id=#{roleId}
+    </update>
+
+        <update id="updateAll" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.Role">
+                update t_sys_role
+                        <set>
+                            name=#{name,jdbcType = VARCHAR},
+                            name_text=#{nameText,jdbcType = VARCHAR},
+                        </set>
+                        where  role_id=#{roleId}
+        </update>
+
+    <delete id="delete">
+        delete from t_sys_role
+            where  role_id=#{0}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_sys_role
+        where role_id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator=" , " close=")"> #{item}</foreach>
+    </delete>
+
+    <select id="get" resultMap="RoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_role as a
+        where
+        role_id=#{0}
+    </select>
+
+    <select id="getByIds" resultMap="RoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_role as a
+        where role_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator=" , " close=")"> #{item}</foreach>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="Long">
+        select count(1) from t_sys_role as a
+        <where>
+            <include refid="listWhere"/>
+        </where>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="RoleRes">
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageList" parameterType="map" resultMap="RoleRes">
+        <include refid="listSql"/>
+         <if test="startRow!=null and pageSize!=null">
+             <![CDATA[LIMIT #{startRow},#{pageSize} ]]>
+         </if>
+    </select>
+
+    <sql id="listSql">
+        select
+            <include refid="AllColumnlist"/>
+            from t_sys_role as a
+            <where>
+                <include refid="listWhere"/>
+            </where>
+    </sql>
+
+    <sql id="listWhere">
+        <if test="parameter !=null">
+            <if test="parameter.roleId!=null ">
+                AND a.role_id=#{parameter.roleId}
+            </if>
+            <if test="parameter.name!=null and parameter.name!=''">
+                AND a.name=#{parameter.name}
+            </if>
+            <if test="parameter.nameText!=null and parameter.nameText!=''">
+                AND a.name_text=#{parameter.nameText}
+            </if>
+       </if>
+    </sql>
+
+
+
+</mapper>

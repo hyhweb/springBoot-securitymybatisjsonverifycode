@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.securitymybatisjsonverifycode.sys.dao.PermissionRoleDao">
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.entity.PermissionRole" id="PermissionRole">
+        <id column="permission_role_id" property="permissionRoleId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="permission_id" property="permissionId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <resultMap type="com.springboot.securitymybatisjsonverifycode.sys.res.PermissionRoleRes" extends="PermissionRole" id="PermissionRoleRes">
+        </resultMap>
+
+    <!-- 全部字段，一般用于明细查询 -->
+    <sql id="AllColumnlist">
+            a.permission_role_id, 
+            a.permission_id, 
+            a.role_id
+    </sql>
+
+
+    <insert id="add" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.PermissionRole" useGeneratedKeys="true" keyProperty="permissionRoleId">
+        insert into t_sys_permission_role(
+            <if test="permissionRoleId!=null">
+                permission_role_id,
+            </if>
+            permission_id,
+            role_id
+        ) values (
+            <if test="permissionRoleId!=null">
+                #{permissionRoleId,jdbcType = BIGINT},
+            </if>
+            #{permissionId,jdbcType = BIGINT},
+            #{roleId,jdbcType = BIGINT}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.PermissionRole">
+        update t_sys_permission_role
+        <set>
+            <if test="permissionId!=null ">
+                permission_id=#{permissionId,jdbcType = BIGINT},
+            </if>
+            <if test="roleId!=null ">
+                role_id=#{roleId,jdbcType = BIGINT},
+            </if>
+        </set>
+        where
+         permission_role_id=#{permissionRoleId}
+    </update>
+
+        <update id="updateAll" parameterType="com.springboot.securitymybatisjsonverifycode.sys.entity.PermissionRole">
+                update t_sys_permission_role
+                        <set>
+                            permission_id=#{permissionId,jdbcType = BIGINT},
+                            role_id=#{roleId,jdbcType = BIGINT},
+                        </set>
+                        where  permission_role_id=#{permissionRoleId}
+        </update>
+
+    <delete id="delete">
+        delete from t_sys_permission_role
+            where  permission_role_id=#{0}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_sys_permission_role
+        where permission_role_id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator=" , " close=")"> #{item}</foreach>
+    </delete>
+
+    <select id="get" resultMap="PermissionRoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_permission_role as a
+        where
+        permission_role_id=#{0}
+    </select>
+
+    <select id="getByIds" resultMap="PermissionRoleRes">
+        select
+        <include refid="AllColumnlist"/>
+        from t_sys_permission_role as a
+        where permission_role_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator=" , " close=")"> #{item}</foreach>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="Long">
+        select count(1) from t_sys_permission_role as a
+        <where>
+            <include refid="listWhere"/>
+        </where>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="PermissionRoleRes">
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageList" parameterType="map" resultMap="PermissionRoleRes">
+        <include refid="listSql"/>
+         <if test="startRow!=null and pageSize!=null">
+             <![CDATA[LIMIT #{startRow},#{pageSize} ]]>
+         </if>
+    </select>
+
+    <sql id="listSql">
+        select
+            <include refid="AllColumnlist"/>
+            from t_sys_permission_role as a
+            <where>
+                <include refid="listWhere"/>
+            </where>
+    </sql>
+
+    <sql id="listWhere">
+        <if test="parameter !=null">
+            <if test="parameter.permissionRoleId!=null ">
+                AND a.permission_role_id=#{parameter.permissionRoleId}
+            </if>
+            <if test="parameter.permissionId!=null ">
+                AND a.permission_id=#{parameter.permissionId}
+            </if>
+            <if test="parameter.roleId!=null ">
+                AND a.role_id=#{parameter.roleId}
+            </if>
+       </if>
+    </sql>
+
+
+
+</mapper>
